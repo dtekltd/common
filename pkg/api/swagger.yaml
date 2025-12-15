@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: support@vietlit.com
+    name: API Support
+    url: https://www.vietlit.com/support
+  description: LBT api server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://vietlit.com/terms/
+  title: LBT API
+  version: "1.0"
+servers:
+  - url: http://localhost:3100/api/
+    description: Local development server
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Type "Bearer" followed by a space and JWT token.
+  schemas:
+    # Pagination Schema
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          example: 1
+          description: Current page number
+        perPage:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          example: 20
+          description: Number of items per page
+        total:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 150
+          description: Total number of items
+        totalPages:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 8
+          description: Total number of pages
+      required:
+        - page
+        - perPage
+        - total
+        - totalPages
+
+    # ApiResponseMeta Schema
+    ApiResponseMeta:
+      type: object
+      properties:
+        requestId:
+          type: string
+          example: "req_1234567890"
+          description: Unique request identifier
+        timestamp:
+          type: string
+          format: date-time
+          example: "2023-12-25T10:30:00Z"
+          description: Response timestamp
+        ordering:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            orderBy: "created_at"
+            ordering: "desc"
+          description: Sorting and ordering parameters
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+          description: Pagination information
+      required: []
+
+    # ApiError Schema
+    ApiError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 400
+          description: HTTP status code or error code
+        message:
+          type: string
+          example: "Bad Request"
+          description: Error message
+        detail:
+          type: object
+          nullable: true
+          description: Additional error details
+          example:
+            field: "email"
+            issue: "invalid format"
+      required:
+        - code
+        - message
+
+    # ApiResponse Schema (Generic)
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Indicates if the request was successful
+        data:
+          type: object
+          nullable: true
+          description: Response data payload
+          additionalProperties: true
+        error:
+          $ref: "#/components/schemas/ApiError"
+          nullable: true
+          description: Error information (present when success is false)
+        meta:
+          $ref: "#/components/schemas/ApiResponseMeta"
+          nullable: true
+          description: Metadata about the response
+      required:
+        - success
+
+    # Typed ApiResponse for different scenarios
+    # ErrorResponse:
+    #   allOf:
+    #     - $ref: "#/components/schemas/ApiResponse"
+    #     - type: object
+    #       properties:
+    #         success:
+    #           type: boolean
+    #           enum: [false]
+    #           example: false
+    #         error:
+    #           $ref: "#/components/schemas/ApiError"
+    #       required:
+    #         - success
+    #         - error
+
+    # Typed ApiResponse for different scenarios
+    # PaginatedAccountsResponse:
+    #   allOf:
+    #     - $ref: "#/components/schemas/ApiResponse"
+    #     - type: object
+    #       properties:
+    #         data:
+    #           type: array
+    #           items:
+    #             $ref: "#/components/schemas/users.Account"
+    #         meta:
+    #           type: object
+    #           properties:
+    #             pagination:
+    #               $ref: "#/components/schemas/Pagination"
+    #           required:
+    #             - pagination
+
+paths: {}

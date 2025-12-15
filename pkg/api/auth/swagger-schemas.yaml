@@ -1,0 +1,150 @@
+users.Account:
+  type: object
+  properties:
+    id:
+      type: integer
+      format: int64
+      minimum: 1
+      example: 123
+      description: Primary key identifier
+    referrerId:
+      type: integer
+      format: int64
+      nullable: true
+      example: 456
+      description: ID of the referring account
+    publicId:
+      type: string
+      maxLength: 8
+      example: "abc123xy"
+      description: Unique public identifier (8 characters)
+    name:
+      type: string
+      maxLength: 64
+      example: "John Doe"
+    email:
+      type: string
+      format: email
+      maxLength: 64
+      example: "john.doe@example.com"
+    phone:
+      type: string
+      maxLength: 16
+      example: "+1234567890"
+    username:
+      type: string
+      maxLength: 64
+      example: "johndoe"
+    avatarUrl:
+      type: string
+      format: uri
+      maxLength: 256
+      example: "https://example.com/avatars/john.jpg"
+    state:
+      type: integer
+      format: int32
+      example: 1
+      description: Account state/status
+    created_at:
+      type: integer
+      format: int64
+      example: 1672531200
+      description: Creation timestamp (Unix timestamp)
+    updated_at:
+      type: integer
+      format: int64
+      example: 1672531200
+      description: Last update timestamp (Unix timestamp)
+    referrer:
+      $ref: "#/components/schemas/users.Account"
+      description: Referrer account object (nullable)
+  required:
+    - name
+    - email
+    - username
+
+RegisterRequest:
+  type: object
+  required:
+    - name
+    - email
+    - username
+    - password
+  properties:
+    name:
+      type: string
+      maxLength: 64
+      example: "John Doe"
+      description: User's full name
+    email:
+      type: string
+      format: email
+      maxLength: 64
+      example: "john.doe@example.com"
+      description: User's email address
+    phone:
+      type: string
+      maxLength: 16
+      example: "+1234567890"
+      description: User's phone number
+      nullable: true
+    username:
+      type: string
+      maxLength: 64
+      example: "johndoe"
+      description: Unique username
+    password:
+      type: string
+      format: password
+      minLength: 6
+      example: "securePassword123"
+      description: User's password
+      writeOnly: true
+    referrer:
+      type: string
+      example: "friend123"
+      description: Referrer code or identifier
+      nullable: true
+    avatarUrl:
+      type: string
+      format: uri
+      maxLength: 256
+      example: "https://example.com/avatars/john.jpg"
+      description: URL to user's avatar image
+      nullable: true
+
+LoginRequest:
+  type: object
+  required:
+    - email
+    - password
+  properties:
+    email:
+      type: string
+      format: email
+      example: "user@example.com"
+      description: User's email address
+    password:
+      type: string
+      format: password
+      example: "your_password"
+      description: User's password
+      writeOnly: true
+
+ResetPasswordRequest:
+  type: object
+  required:
+    - email
+    - recaptchaToken
+  properties:
+    email:
+      type: string
+      format: email
+      maxLength: 64
+      example: "user@example.com"
+      description: User's email address for password reset
+    recaptchaToken:
+      type: string
+      example: "03AGdBq27vD..."
+      description: reCAPTCHA token for spam protection
+  description: Request to initiate password reset process

@@ -1,0 +1,232 @@
+/login:
+  post:
+    summary: User login
+    description: Authenticate user with email and password, return JWT token and account information
+    tags:
+      - Authentication
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LoginRequest"
+          examples:
+            loginExample:
+              value:
+                email: "jane.smith@example.com"
+                password: "securePassword456"
+    responses:
+      "200":
+        description: Successful login
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              successExample:
+                value:
+                  success: true
+                  data:
+                    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    account:
+                      id: 123
+                      publicId: "abc123xy"
+                      name: "John Doe"
+                      email: "user@example.com"
+                      username: "johndoe"
+                      avatarUrl: "https://example.com/avatars/john.jpg"
+                      state: 1
+                      created_at: 1672531200
+                      updated_at: 1672531200
+                    policy:
+                      roles: []
+                      routes: [["123", "path", "/account", "GET"]]
+      "400":
+        description: Bad Request - Invalid input or authentication failed
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              missingFields:
+                value:
+                  success: false
+                  error:
+                    code: 400
+                    message: 'Both "email" and "password" are required.'
+              invalidCredentials:
+                value:
+                  success: false
+                  error:
+                    code: 400
+                    message: "Invalid email or password"
+              parseError:
+                value:
+                  success: false
+                  error:
+                    code: 400
+                    message: "Parse failed! invalid JSON format"
+      "500":
+        description: Internal Server Error - Token generation failed
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              tokenError:
+                value:
+                  success: false
+                  error:
+                    code: 500
+                    message: "Failed to generate authentication token"
+
+/register:
+  post:
+    summary: Register a new user account
+    description: Create a new user account with the provided information
+    tags:
+      - Authentication
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RegisterRequest"
+          examples:
+            registerExample:
+              value:
+                name: "John Doe"
+                email: "john.doe@example.com"
+                phone: "+1234567890"
+                username: "johndoe"
+                password: "securePassword123"
+                referrer: "friend123"
+                referrerId: 456
+                avatarUrl: "https://example.com/avatars/john.jpg"
+            minimalExample:
+              value:
+                name: "Jane Smith"
+                email: "jane.smith@example.com"
+                username: "janesmith"
+                password: "securePassword456"
+    responses:
+      "200":
+        description: Successful registration
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              successExample:
+                value:
+                  success: true
+                  data:
+                    id: 123
+                    publicId: "abc123xy"
+                    name: "John Doe"
+                    email: "john.doe@example.com"
+                    phone: "+1234567890"
+                    username: "johndoe"
+                    avatarUrl: "https://example.com/avatars/john.jpg"
+                    state: 1
+                    isAdmin: false
+                    created_at: 1672531200
+                    updated_at: 1672531200
+      "400":
+        description: Bad Request - Invalid input or missing required fields
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              missingFields:
+                value:
+                  success: false
+                  error:
+                    code: 400
+                    message: 'Both "email" and "password" are required.'
+              parseError:
+                value:
+                  success: false
+                  error:
+                    code: 400
+                    message: "Parse failed! invalid JSON format"
+      "500":
+        description: Internal Server Error - Registration failed
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              registrationError:
+                value:
+                  success: false
+                  error:
+                    code: 500
+                    message: "Failed to create user account"
+                    detail:
+                      reason: "Email already exists"
+
+/reset-password:
+  post:
+    summary: Request password reset
+    description: Initiate a password reset process for a user account
+    tags:
+      - Authentication
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResetPasswordRequest"
+          examples:
+            resetPasswordExample:
+              value:
+                email: "user@example.com"
+                recaptchaToken: "03AGdBq27vD..."
+    responses:
+      "200":
+        description: Password reset initiated successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              successExample:
+                value:
+                  success: true
+                  data:
+                    message: "Password reset email sent"
+                    email: "user@example.com"
+      "400":
+        description: Bad Request - Invalid input or missing required fields
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              missingEmail:
+                value:
+                  success: false
+                  error:
+                    code: 400
+                    message: "Email is required"
+              invalidEmail:
+                value:
+                  success: false
+                  error:
+                    code: 400
+                    message: "Invalid email format"
+      "500":
+        description: Internal Server Error - Password reset process failed
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+            examples:
+              serverError:
+                value:
+                  success: false
+                  error:
+                    code: 500
+                    message: "Failed to process password reset request"
